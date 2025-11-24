@@ -1,69 +1,52 @@
 import threading
-from moods import (
-    run_effect, day_mood, set_enabled, is_enabled,
-    spring_palette, summer_palette, autumn_palette, winter_palette
-)
+from tuke_openlab import Controller
+from moods import *
+import time
 
-# uchováva aktuálne prehrávaný zvuk
-current_audio_obj = [None]
+openlab = Controller(Controller.simulation_env("mg383jw"))
 
-# vlákno pre efekt
 current_thread = None
+stop_event = threading.Event()
 
-# -----------------------------
-# STOP EFFECT
-# -----------------------------
-def stop_effect():
-    global current_thread
-    set_enabled(False)  # zastav svetlá
-
-    if current_audio_obj[0] is not None and current_audio_obj[0].is_playing():
-        current_audio_obj[0].stop()
-
+def stop_current_effect():
+    global current_thread, stop_event
+    set_enabled(False)
+    stop_event.set()
+    openlab.lights.turn_off()
     if current_thread and current_thread.is_alive():
         current_thread.join(timeout=0.1)
     current_thread = None
-
-# -----------------------------
-# RUN NEW EFFECT
-# -----------------------------
-def start_new_effect(palette, audio_file):
-    global current_thread
-    stop_effect()
+    stop_event.clear()  # pripravené na ďalšie spustenie
     set_enabled(True)
 
-    current_thread = threading.Thread(target=run_effect, args=(palette, audio_file, current_audio_obj))
+def start_new_effect(target_fn):
+    global current_thread, stop_event
+    stop_current_effect()
+    stop_event.clear()
+    set_enabled(True)
+    current_thread = threading.Thread(target=target_fn, args=(openlab, stop_event))
     current_thread.start()
 
-# -----------------------------
-# SPEECH HANDLER
-# -----------------------------
 def on_speech(text: str):
     text = text.lower().strip()
     if text in ["koniec", "stop"]:
-        stop_effect()
+        stop_current_effect()
         return
     elif text == "jar":
-        start_new_effect(spring_palette, "jar.mp3")
+        start_new_effect(run_spring)
     elif text == "leto":
-        start_new_effect(summer_palette, "leto.mp3")
+        start_new_effect(run_summer)
     elif text == "jeseň":
-        start_new_effect(autumn_palette, "jesen.mp3")
+        start_new_effect(run_autumn)
     elif text == "zima":
-        start_new_effect(winter_palette, "zima.mp3")
+        start_new_effect(run_winter)
     elif text in ["deň", "default"]:
-        stop_effect()
-        day_mood()
+        stop_current_effect()
+        day_mood(openlab)
 
-# -----------------------------
-# PRIPOJENIE SPEECH RECOGNITION
-# -----------------------------
-from tuke_openlab import Controller
-openlab = Controller(Controller.simulation_env("mg383jw"))
+# spusti rozpoznávanie hlasu
 openlab.voice_recognition.on_recognized(on_speech)
 
-# -----------------------------
-# KEEP PROGRAM RUNNING
-# -----------------------------
+# udrž program behom
 while True:
-    pass
+    time.sleep(0.1)
