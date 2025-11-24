@@ -1,81 +1,86 @@
 import tuke_openlab
-from moods import *
+from moods import (
+    run_spring_pulse, run_summer_pulse, run_autumn_pulse, run_winter_pulse,
+    day_mood, set_enabled, is_enabled
+)
 import threading
+import simpleaudio as sa
 import os
-from playsound import playsound
 
+# -----------------------------
+# OPENLAB CONTROLLER
+# -----------------------------
 openlab = tuke_openlab.Controller(tuke_openlab.simulation_env("mg383jw"))
+
+# -----------------------------
+# GLOBAL THREADS
+# -----------------------------
 current_thread = None
 sound_thread = None
 sound_playing = False
 
 # -----------------------------
-# Zvuk
+# SOUND FUNCTIONS
 # -----------------------------
 def play_sound_file(filename):
-    global sound_playing
+    global sound_thread, sound_playing
     if not os.path.exists(filename):
         print(f"Zvuk nenájdený: {filename}")
         return
-    stop_sound()
+
+    stop_sound()  # zastaví predchádzajúci zvuk
+
     def sound_loop():
         global sound_playing
         sound_playing = True
         while sound_playing:
-            playsound(filename)
-    global sound_thread
+            wave_obj = sa.WaveObject.from_wave_file(filename)
+            play_obj = wave_obj.play()
+            play_obj.wait_done()
+
     sound_thread = threading.Thread(target=sound_loop)
     sound_thread.start()
 
 def stop_sound():
-    global sound_playing
+    global sound_playing, sound_thread
     sound_playing = False
     if sound_thread and sound_thread.is_alive():
         sound_thread.join(timeout=0.1)
 
 # -----------------------------
-# Obrázky
+# IMAGE FUNCTION
 # -----------------------------
 def show_image(filename):
-    if not os.path.exists(filename):
+    path = f"images/{filename}"
+    if not os.path.exists(path):
         print(f"Obrázok nenájdený: {filename}")
         return
     try:
-        openlab.screens.show_image(filename)
+        openlab.screens.show_static_image(path)
     except Exception as e:
-        print("Chyba pri zobrazovaní obrázka:", e)
-
-def clear_screen():
-    try:
-        openlab.screens.clear()
-    except:
-        pass
+        print(f"Chyba pri zobrazovaní obrázka: {e}")
 
 # -----------------------------
-# Stop všetkého
+# LIGHT EFFECT CONTROL
 # -----------------------------
 def stop_effect():
     global current_thread
     set_enabled(False)
     openlab.lights.turn_off()
     stop_sound()
-    clear_screen()
     if current_thread and current_thread.is_alive():
         current_thread.join(timeout=0.1)
     current_thread = None
 
-# -----------------------------
-# Spusti novú animáciu bezpečne
-# -----------------------------
 def start_new_effect(target_fn):
     global current_thread
     stop_effect()
     set_enabled(True)
-    current_thread = threading.Thread(target=target_fn)
+    current_thread = threading.Thread(target=lambda: target_fn(openlab))
     current_thread.start()
 
 # -----------------------------
-# Hlasové príkazy
+# SPEECH RECOGNITION
 # -----------------------------
 def on_speech(text: str):
     text = text.lower().strip()
@@ -85,36 +90,36 @@ def on_speech(text: str):
         return
 
     elif text == "jar":
-        play_sound_file("jar.mp3")
+        play_sound_file("sounds/jar.wav")
         show_image("jar.png")
-        start_new_effect(lambda: run_spring_pulse(openlab))
+        start_new_effect(run_spring_pulse)
 
     elif text == "leto":
-        play_sound_file("leto.mp3")
+        play_sound_file("sounds/leto.wav")
         show_image("leto.png")
-        start_new_effect(lambda: run_summer_pulse(openlab))
+        start_new_effect(run_summer_pulse)
 
     elif text in ["jeseň", "jesen"]:
-        play_sound_file("jesen.mp3")
+        play_sound_file("sounds/jesen.wav")
         show_image("jesen.png")
-        start_new_effect(lambda: run_autumn_pulse(openlab))
+        start_new_effect(run_autumn_pulse)
 
     elif text == "zima":
-        play_sound_file("zima.mp3")
+        play_sound_file("sounds/zima.wav")
         show_image("zima.png")
-        start_new_effect(lambda: run_winter_pulse(openlab))
+        start_new_effect(run_winter_pulse)
 
     elif text in ["deň", "default"]:
         stop_effect()
         day_mood(openlab)
 
 # -----------------------------
-# Pripoj hlasové rozpoznávanie
+# REGISTER SPEECH HANDLER
 # -----------------------------
 openlab.voice_recognition.on_recognized(on_speech)
 
 # -----------------------------
-# Keep program running
+# KEEP PROGRAM RUNNING
 # -----------------------------
 while True:
     pass
