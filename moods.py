@@ -10,6 +10,13 @@ openlab = tuke_openlab.Controller(tuke_openlab.simulation_env("mg383jw"))
 # -----------------------------
 lights_enabled = True
 
+def set_enabled(state: bool):
+    global lights_enabled
+    lights_enabled = state
+
+def is_enabled():
+    return lights_enabled
+
 # -----------------------------
 # PALETTES
 # -----------------------------
@@ -40,47 +47,56 @@ winter_palette = [
 # -----------------------------
 # EFFECT FUNCTIONS
 # -----------------------------
-def pulse_all_rows(palette, start, end, is_running):
-    for color in palette:
-        if not is_running():
-            return
-        for i in range(start, end + 1):
-            if not is_running():
+def pulse_all_rows(palette, start, end):
+    while is_enabled():
+        for color in palette:
+            if not is_enabled():
                 return
-            openlab.lights.set_color(i, color)
+            for i in range(start, end + 1):
+                if not is_enabled():
+                    return
+                openlab.lights.set_color(i, color)
             time.sleep(0.2)
 
 
-def run_spring_pulse(openlab, is_running):
-    t1 = Thread(target=pulse_all_rows, args=(spring_palette, 1, 27, is_running))
-    t2 = Thread(target=pulse_all_rows, args=(spring_palette, 28, 54, is_running))
-    t3 = Thread(target=pulse_all_rows, args=(spring_palette, 55, 81, is_running))
-    t1.start(); t2.start(); t3.start()
-    t1.join(); t2.join(); t3.join()
+def run_spring_pulse():
+    threads = [
+        Thread(target=pulse_all_rows, args=(spring_palette, 1, 27)),
+        Thread(target=pulse_all_rows, args=(spring_palette, 28, 54)),
+        Thread(target=pulse_all_rows, args=(spring_palette, 55, 81)),
+    ]
+    for t in threads: t.start()
+    for t in threads: t.join()
 
 
-def run_summer_pulse(openlab, is_running):
-    t1 = Thread(target=pulse_all_rows, args=(summer_palette, 1, 27, is_running))
-    t2 = Thread(target=pulse_all_rows, args=(summer_palette, 28, 54, is_running))
-    t3 = Thread(target=pulse_all_rows, args=(summer_palette, 55, 81, is_running))
-    t1.start(); t2.start(); t3.start()
-    t1.join(); t2.join(); t3.join()
+def run_summer_pulse():
+    threads = [
+        Thread(target=pulse_all_rows, args=(summer_palette, 1, 27)),
+        Thread(target=pulse_all_rows, args=(summer_palette, 28, 54)),
+        Thread(target=pulse_all_rows, args=(summer_palette, 55, 81)),
+    ]
+    for t in threads: t.start()
+    for t in threads: t.join()
 
 
-def run_autumn_pulse(openlab, is_running):
-    t1 = Thread(target=pulse_all_rows, args=(autumn_palette, 1, 27, is_running))
-    t2 = Thread(target=pulse_all_rows, args=(autumn_palette, 28, 54, is_running))
-    t3 = Thread(target=pulse_all_rows, args=(autumn_palette, 55, 81, is_running))
-    t1.start(); t2.start(); t3.start()
-    t1.join(); t2.join(); t3.join()
+def run_autumn_pulse():
+    threads = [
+        Thread(target=pulse_all_rows, args=(autumn_palette, 1, 27)),
+        Thread(target=pulse_all_rows, args=(autumn_palette, 28, 54)),
+        Thread(target=pulse_all_rows, args=(autumn_palette, 55, 81)),
+    ]
+    for t in threads: t.start()
+    for t in threads: t.join()
 
 
-def run_winter_pulse(openlab, is_running):
-    t1 = Thread(target=pulse_all_rows, args=(winter_palette, 1, 27, is_running))
-    t2 = Thread(target=pulse_all_rows, args=(winter_palette, 28, 54, is_running))
-    t3 = Thread(target=pulse_all_rows, args=(winter_palette, 55, 81, is_running))
-    t1.start(); t2.start(); t3.start()
-    t1.join(); t2.join(); t3.join()
+def run_winter_pulse():
+    threads = [
+        Thread(target=pulse_all_rows, args=(winter_palette, 1, 27)),
+        Thread(target=pulse_all_rows, args=(winter_palette, 28, 54)),
+        Thread(target=pulse_all_rows, args=(winter_palette, 55, 81)),
+    ]
+    for t in threads: t.start()
+    for t in threads: t.join()
 
 
 # Default mode
