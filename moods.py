@@ -5,7 +5,9 @@ from tuke_openlab.lights import Color
 
 openlab = Controller(Controller.simulation_env("mg383jw"))
 
+# -----------------------------
 # GLOBAL FLAG
+# -----------------------------
 _enabled = True
 def set_enabled(value: bool):
     global _enabled
@@ -14,26 +16,30 @@ def set_enabled(value: bool):
 def is_enabled():
     return _enabled
 
+# -----------------------------
 # PALETTES
+# -----------------------------
 spring_palette = [Color(200,255,200), Color(255,220,240), Color(255,255,180)]
 summer_palette = [Color(0,200,255), Color(255,255,0), Color(0,120,255)]
 autumn_palette = [Color(255,140,0), Color(180,60,20), Color(255,80,20)]
 winter_palette = [Color(180,220,255), Color(220,240,255), Color(120,180,255)]
 
+# -----------------------------
 # LIGHTS EFFECT
+# -----------------------------
 def pulse_all_rows(palette, start, end):
-    """Beží efekt až do is_enabled() = False"""
+    """Beží efekt kým is_enabled = True"""
     for color in palette:
         if not is_enabled():
             return
         for i in range(start, end+1):
             if not is_enabled():
                 return
-            openlab.lights[i].color = color  # nastav farbu
+            openlab.lights.set_color(i, color)  # tu sa spravne nastavuje farba
             time.sleep(0.15)
 
 def run_effect_for_palette(palette):
-    """Spustí efekt paralelne pre všetky 3 riadky"""
+    """Efekt paralelne pre 3 riadky svetiel"""
     threads = [
         Thread(target=pulse_all_rows, args=(palette, 1, 27)),
         Thread(target=pulse_all_rows, args=(palette, 28, 54)),
@@ -42,13 +48,17 @@ def run_effect_for_palette(palette):
     for t in threads: t.start()
     for t in threads: t.join()
 
+# -----------------------------
 # KAŽDÉ ROČNÉ OBDOBIE
+# -----------------------------
 def run_spring_pulse(): run_effect_for_palette(spring_palette)
 def run_summer_pulse(): run_effect_for_palette(summer_palette)
 def run_autumn_pulse(): run_effect_for_palette(autumn_palette)
 def run_winter_pulse(): run_effect_for_palette(winter_palette)
 
+# -----------------------------
 # DEFAULT
+# -----------------------------
 def day_mood():
     set_enabled(False)
-    openlab.lights.set_all(Color(204,255,255))
+    openlab.lights.turn_off()
