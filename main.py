@@ -1,72 +1,77 @@
+import threading
 import tuke_openlab
 from moods import (
-    run_spring_pulse, run_summer_pulse, run_autumn_pulse, run_winter_pulse,
-    day_mood, set_enabled, is_enabled
+    run_effect, set_enabled, is_enabled
 )
-import threading
 
 openlab = tuke_openlab.Controller(tuke_openlab.simulation_env("mg383jw"))
 
-# -------- CURRENT RUNNING THREAD ----------
+# -----------------------------
+# GLOBAL THREADS
+# -----------------------------
 current_thread = None
+current_thread_audio = None
 
+def set_current_audio(play_obj):
+    global current_thread_audio
+    current_thread_audio = play_obj
 
-# ---------------------------------------------------
-# STOP FUNCTION – zastaví animáciu
-# ---------------------------------------------------
+# -----------------------------
+# STOP FUNCTION
+# -----------------------------
 def stop_effect():
     global current_thread
-    set_enabled(False)      # zastaviť slučky
+    set_enabled(False)
     openlab.lights.turn_off()
 
     if current_thread and current_thread.is_alive():
         current_thread.join(timeout=0.1)
 
+    # Stop audio
+    global current_thread_audio
+    if current_thread_audio is not None and current_thread_audio.is_playing():
+        current_thread_audio.stop()
+        current_thread_audio = None
+
     current_thread = None
+    set_enabled(True)  # pripravené na nový efekt
 
-
-# ---------------------------------------------------
-# RUN NEW EFFECT SAFELY
-# ---------------------------------------------------
-def start_new_effect(target_fn):
+# -----------------------------
+# RUN NEW EFFECT
+# -----------------------------
+def start_new_effect(palette, audio_file):
     global current_thread
-
-    stop_effect()           # stop before starting new
-    set_enabled(True)       # povoliť beh efektu
-
-    current_thread = threading.Thread(target=target_fn)
+    stop_effect()  # zastaví predchádzajúci efekt
+    current_thread = threading.Thread(target=lambda: run_effect(palette, audio_file))
     current_thread.start()
 
-
-# ---------------------------------------------------
-# SPEECH LOGIC
-# ---------------------------------------------------
+# -----------------------------
+# SPEECH HANDLER
+# -----------------------------
 def on_speech(text: str):
     text = text.lower().strip()
 
     if text in ["koniec", "stop"]:
         stop_effect()
-        return
-
     elif text == "jar":
-        start_new_effect(run_spring_pulse)
-
+        start_new_effect(moods.spring_palette, "jar.mp3")
     elif text == "leto":
-        start_new_effect(run_summer_pulse)
-
+        start_new_effect(moods.summer_palette, "leto.mp3")
     elif text == "jeseň":
-        start_new_effect(run_autumn_pulse)
-
+        start_new_effect(moods.autumn_palette, "jesen.mp3")
     elif text == "zima":
-        start_new_effect(run_winter_pulse)
-
-    elif text == "deň" or text == "default":
+        start_new_effect(moods.winter_palette, "zima.mp3")
+    elif text in ["deň", "default"]:
         stop_effect()
-        day_mood()
+        openlab.lights.set_all(tuke_openlab.lights.Color(204,255,255))
 
-
+# -----------------------------
+# ACTIVATE VOICE RECOGNITION
+# -----------------------------
 openlab.voice_recognition.on_recognized(on_speech)
 
-# keep program running
+# -----------------------------
+# KEEP RUNNING
+# -----------------------------
 while True:
     pass
