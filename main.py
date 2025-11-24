@@ -21,18 +21,19 @@ pygame.mixer.init()
 
 def play_sound(filename):
     if not os.path.exists(filename):
-        print(f"Zvukový súbor nenájdený: {filename}")
+        print(f"Zvuk nenájdený: {filename}")
         return
+    stop_sound()
     def _play():
         pygame.mixer.music.load(filename)
-        pygame.mixer.music.play()
+        pygame.mixer.music.play(-1)  # loop
     threading.Thread(target=_play, daemon=True).start()
 
 def stop_sound():
     pygame.mixer.music.stop()
 
 # -----------------------------
-# Load and show image as Base64
+# Load and show image Base64
 # -----------------------------
 def show_image(filename):
     if not os.path.exists(filename):
@@ -40,9 +41,8 @@ def show_image(filename):
         return
     with open(filename, "rb") as f:
         img_b64 = base64.b64encode(f.read()).decode("utf-8")
-    # vymaže a zobrazí nový obrázok
     try:
-        openlab.screens.show_static_image(img_b64)
+        openlab.screens.show_image_b64(img_b64)
     except Exception as e:
         print("Chyba pri zobrazovaní obrázka:", e)
 
@@ -53,11 +53,12 @@ def stop_effect():
     global current_thread
     set_enabled(False)
     openlab.lights.turn_off()
+    stop_sound()
+    # vymaž obrazovku
     try:
-        openlab.screens.show_static_image("")  # vymaže obrazovku
+        openlab.screens.show_image_b64("")  
     except:
         pass
-    stop_sound()
     if current_thread and current_thread.is_alive():
         current_thread.join(timeout=0.1)
     current_thread = None
@@ -105,7 +106,7 @@ def on_speech(text: str):
 
         elif text in ["deň", "default"]:
             stop_effect()
-            day_mood()
+            day_mood(openlab)
 
     except Exception as e:
         print("Chyba v on_speech:", e)
