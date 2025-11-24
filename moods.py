@@ -46,10 +46,15 @@ def pulse(color, start, COLUMNS):
         time.sleep(0.1)
     # start += 27
 
-def pulse_all_rows(palette, start, COLUMNS):
-        for color in palette:
-            pulse(color, start, COLUMNS)
-        time.sleep(0.25)
+def pulse_all_rows(palette, start, COLUMNS, is_running):
+    for color in palette:
+        if not is_running():
+            break  # okamžité zastavenie
+        for i in range(start, COLUMNS+1):
+            if not is_running():
+                break
+            openlab.lights.set_color(i, color)
+            time.sleep(0.2)
 
 
 
