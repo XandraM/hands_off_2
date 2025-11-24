@@ -5,7 +5,6 @@ from moods import (
 )
 import threading
 import pygame
-import base64
 import os
 
 # -----------------------------
@@ -36,90 +35,23 @@ def stop_sound():
     pygame.mixer.music.stop()
 
 # -----------------------------
-# Load and show image Base64
+# Load and show image
 # -----------------------------
 def show_image(filename):
     if not os.path.exists(filename):
         print(f"Obrázok nenájdený: {filename}")
         return
-    with open(filename, "rb") as f:
-        img_b64 = base64.b64encode(f.read()).decode("utf-8")
     try:
-        openlab.screens.show_image_b64(img_b64)
+        openlab.screens.show_image(filename)  # priamo súbor PNG
     except Exception as e:
         print("Chyba pri zobrazovaní obrázka:", e)
 
-# -----------------------------
-# Stop all effects
-# -----------------------------
-def stop_effect():
-    global current_thread
-    set_enabled(False)
-    openlab.lights.turn_off()
-    stop_sound()
+def clear_screen():
     try:
-        openlab.screens.show_image_b64("")  # vymaž obrazovku
+        openlab.screens.clear()
     except:
         pass
-    if current_thread and current_thread.is_alive():
-        current_thread.join(timeout=0.1)
-    current_thread = None
 
 # -----------------------------
-# Start new effect safely
-# -----------------------------
-def start_new_effect(target_fn):
-    global current_thread
-    stop_effect()
-    set_enabled(True)
-    current_thread = threading.Thread(target=target_fn)
-    current_thread.start()
-
-# -----------------------------
-# Speech recognition callback
-# -----------------------------
-def on_speech(text: str):
-    try:
-        text = text.lower().strip()
-
-        if text in ["koniec", "stop"]:
-            stop_effect()
-            return
-
-        elif text == "jar":
-            play_sound("jar.mp3")
-            show_image("jar.png")
-            start_new_effect(lambda: run_spring_pulse(openlab, is_enabled))
-
-        elif text == "leto":
-            play_sound("leto.mp3")
-            show_image("leto.png")
-            start_new_effect(lambda: run_summer_pulse(openlab, is_enabled))
-
-        elif text in ["jeseň", "jesen"]:
-            play_sound("jesen.mp3")
-            show_image("jesen.png")
-            start_new_effect(lambda: run_autumn_pulse(openlab, is_enabled))
-
-        elif text == "zima":
-            play_sound("zima.mp3")
-            show_image("zima.png")
-            start_new_effect(lambda: run_winter_pulse(openlab, is_enabled))
-
-        elif text in ["deň", "default"]:
-            stop_effect()
-            day_mood(openlab)
-
-    except Exception as e:
-        print("Chyba v on_speech:", e)
-
-# -----------------------------
-# Attach callback
-# -----------------------------
-openlab.voice_recognition.on_recognized(on_speech)
-
-# -----------------------------
-# Keep program running
-# -----------------------------
-while True:
-    pass
+# Stop all effects
+# -------------------------
