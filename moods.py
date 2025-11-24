@@ -56,7 +56,7 @@ def pulse_all_rows(palette, start, end):
         for i in range(start, end + 1):
             if not is_enabled():
                 return
-            openlab.lights.set_color(i, color)
+            openlab.lights[i].set_color(color)  # <-- tu je oprava
             time.sleep(0.15)
 
 
