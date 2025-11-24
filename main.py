@@ -15,7 +15,7 @@ openlab = tuke_openlab.Controller(tuke_openlab.simulation_env("mg383jw"))
 current_thread = None
 
 # -----------------------------
-# Initialize Pygame for MP3
+# Initialize Pygame for WAV
 # -----------------------------
 pygame.mixer.init()
 
@@ -25,8 +25,11 @@ def play_sound(filename):
         return
     stop_sound()
     def _play():
-        pygame.mixer.music.load(filename)
-        pygame.mixer.music.play(-1)  # loop
+        try:
+            pygame.mixer.music.load(filename)
+            pygame.mixer.music.play(-1)  # loop
+        except Exception as e:
+            print("Chyba pri prehrávaní zvuku:", e)
     threading.Thread(target=_play, daemon=True).start()
 
 def stop_sound():
@@ -85,22 +88,22 @@ def on_speech(text: str):
             return
 
         elif text == "jar":
-            play_sound("jar.mp3")
+            play_sound("jar.wav")
             show_image("jar.png")
             start_new_effect(lambda: run_spring_pulse(openlab, is_enabled))
 
         elif text == "leto":
-            play_sound("leto.mp3")
+            play_sound("leto.wav")
             show_image("leto.png")
             start_new_effect(lambda: run_summer_pulse(openlab, is_enabled))
 
         elif text in ["jeseň", "jesen"]:
-            play_sound("jesen.mp3")
+            play_sound("jesen.wav")
             show_image("jesen.png")
             start_new_effect(lambda: run_autumn_pulse(openlab, is_enabled))
 
         elif text == "zima":
-            play_sound("zima.mp3")
+            play_sound("zima.wav")
             show_image("zima.png")
             start_new_effect(lambda: run_winter_pulse(openlab, is_enabled))
 
