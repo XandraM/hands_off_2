@@ -56,7 +56,7 @@ def stop_effect():
     stop_sound()
     # vymaž obrazovku
     try:
-        openlab.screens.show_image_b64("")  
+        openlab.screens.show_image_b64("")
     except:
         pass
     if current_thread and current_thread.is_alive():
