@@ -1,46 +1,40 @@
 import tuke_openlab
-from tuke_openlab import lights
 from tuke_openlab.lights import Color
 import time
 from moods import run_spring_pulse, run_summer_pulse, run_winter_pulse, run_autumn_pulse, day_mood
+from threading import Thread
 
-# lights
 openlab = tuke_openlab.Controller(tuke_openlab.simulation_env("mg383jw"))
-# or production:
-# openlab = tuke_openlab.Controller(tuke_openlab.production_env())
 
-running = True
-default = True
+lights_enabled = True  # kontrola, či svetlá môžu bežať
 
-
-
-def exit_lights():
-
+def stop_lights():
+    global lights_enabled
+    lights_enabled = False
     openlab.lights.turn_off()
 
+def run_pulse_with_stop(pulse_function):
+    global lights_enabled
+    lights_enabled = True
+    pulse_function(openlab, lambda: lights_enabled)  # posielame vlákno kontrolu
+
 def on_speech(text: str):
-    # stopping the program
-    if text == "stop" or text == "koniec":
-        openlab.lights.turn_off()
+    global lights_enabled
 
-    elif text == "jar":
-        default = False
-        run_spring_pulse(openlab)
+    if text in ["stop", "koniec"]:
+        stop_lights()
+        return
 
+    if text == "jar":
+        Thread(target=run_pulse_with_stop, args=(run_spring_pulse,)).start()
     elif text == "leto":
-        default = False
-        run_summer_pulse(openlab)
-        default = True
-
+        Thread(target=run_pulse_with_stop, args=(run_summer_pulse,)).start()
     elif text == "jeseň":
-        default = False
-        run_autumn_pulse(openlab)
-
+        Thread(target=run_pulse_with_stop, args=(run_autumn_pulse,)).start()
     elif text == "zima":
-        default = False
-        run_winter_pulse(openlab)
+        Thread(target=run_pulse_with_stop, args=(run_winter_pulse,)).start()
 
 openlab.voice_recognition.on_recognized(on_speech)
 
-while running:
-    pass
+while True:
+    time.sleep(0.1)
