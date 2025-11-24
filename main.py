@@ -15,7 +15,7 @@ openlab = tuke_openlab.Controller(tuke_openlab.simulation_env("mg383jw"))
 current_thread = None
 
 # -----------------------------
-# Initialize Pygame for WAV
+# Initialize Pygame for MP3
 # -----------------------------
 pygame.mixer.init()
 
@@ -57,9 +57,8 @@ def stop_effect():
     set_enabled(False)
     openlab.lights.turn_off()
     stop_sound()
-    # vymaž obrazovku
     try:
-        openlab.screens.show_image_b64("")
+        openlab.screens.show_image_b64("")  # vymaž obrazovku
     except:
         pass
     if current_thread and current_thread.is_alive():
@@ -88,22 +87,22 @@ def on_speech(text: str):
             return
 
         elif text == "jar":
-            play_sound("jar.wav")
+            play_sound("jar.mp3")
             show_image("jar.png")
             start_new_effect(lambda: run_spring_pulse(openlab, is_enabled))
 
         elif text == "leto":
-            play_sound("leto.wav")
+            play_sound("leto.mp3")
             show_image("leto.png")
             start_new_effect(lambda: run_summer_pulse(openlab, is_enabled))
 
         elif text in ["jeseň", "jesen"]:
-            play_sound("jesen.wav")
+            play_sound("jesen.mp3")
             show_image("jesen.png")
             start_new_effect(lambda: run_autumn_pulse(openlab, is_enabled))
 
         elif text == "zima":
-            play_sound("zima.wav")
+            play_sound("zima.mp3")
             show_image("zima.png")
             start_new_effect(lambda: run_winter_pulse(openlab, is_enabled))
 
