@@ -35,17 +35,14 @@ def stop_sound():
 # -----------------------------
 # Load image as base64
 # -----------------------------
-def load_image_b64(filename):
+def show_image(filename):
     if not os.path.exists(filename):
         print(f"Obrázok nenájdený: {filename}")
-        return None
+        return
     with open(filename, "rb") as f:
-        return base64.b64encode(f.read()).decode("utf-8")
-
-def show_image(filename):
-    img_b64 = load_image_b64(filename)
-    if img_b64:
-        openlab.screens.show_image(img_b64)
+        img_b64 = base64.b64encode(f.read()).decode("utf-8")
+    # Použiť správnu metódu podľa dokumentácie OpenLab
+    openlab.screens.show_static_image(img_b64)
 
 # -----------------------------
 # Stop all effects
