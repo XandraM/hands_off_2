@@ -8,7 +8,7 @@ import simpleaudio as sa
 import os
 
 # -----------------------------
-# OPENLAB CONTROLLER
+# OPENLAB
 # -----------------------------
 openlab = tuke_openlab.Controller(tuke_openlab.simulation_env("mg383jw"))
 
@@ -28,7 +28,7 @@ def play_sound_file(filename):
         print(f"Zvuk nenájdený: {filename}")
         return
 
-    stop_sound()  # zastaví predchádzajúci zvuk
+    stop_sound()
 
     def sound_loop():
         global sound_playing
@@ -61,7 +61,7 @@ def show_image(filename):
         print(f"Chyba pri zobrazovaní obrázka: {e}")
 
 # -----------------------------
-# LIGHT EFFECT CONTROL
+# EFFECT CONTROL
 # -----------------------------
 def stop_effect():
     global current_thread
@@ -80,7 +80,7 @@ def start_new_effect(target_fn):
     current_thread.start()
 
 # -----------------------------
-# SPEECH RECOGNITION
+# SPEECH LOGIC
 # -----------------------------
 def on_speech(text: str):
     text = text.lower().strip()
