@@ -1,34 +1,37 @@
 import tuke_openlab
-from moods import (
-    run_spring_pulse, run_summer_pulse, run_autumn_pulse, run_winter_pulse,
-    day_mood, set_enabled, is_enabled
-)
+from moods import *
 import threading
 import os
+from playsound import playsound
 
-# -----------------------------
-# OpenLab controller
-# -----------------------------
 openlab = tuke_openlab.Controller(tuke_openlab.simulation_env("mg383jw"))
 current_thread = None
+sound_thread = None
+sound_playing = False
 
 # -----------------------------
 # Zvuk
 # -----------------------------
-def play_sound(filename):
+def play_sound_file(filename):
+    global sound_playing
     if not os.path.exists(filename):
         print(f"Zvuk nenájdený: {filename}")
         return
-    try:
-        openlab.sounds.play_sound(filename, loop=True)
-    except Exception as e:
-        print("Chyba pri prehrávaní zvuku:", e)
+    stop_sound()
+    def sound_loop():
+        global sound_playing
+        sound_playing = True
+        while sound_playing:
+            playsound(filename)
+    global sound_thread
+    sound_thread = threading.Thread(target=sound_loop)
+    sound_thread.start()
 
 def stop_sound():
-    try:
-        openlab.sounds.stop_all()
-    except:
-        pass
+    global sound_playing
+    sound_playing = False
+    if sound_thread and sound_thread.is_alive():
+        sound_thread.join(timeout=0.1)
 
 # -----------------------------
 # Obrázky
@@ -82,24 +85,24 @@ def on_speech(text: str):
         return
 
     elif text == "jar":
-        play_sound("jar.mp3")     # alebo jar.wav
+        play_sound_file("jar.mp3")
         show_image("jar.png")
-        start_new_effect(lambda: run_spring_pulse(openlab, is_enabled))
+        start_new_effect(lambda: run_spring_pulse(openlab))
 
     elif text == "leto":
-        play_sound("leto.mp3")
+        play_sound_file("leto.mp3")
         show_image("leto.png")
-        start_new_effect(lambda: run_summer_pulse(openlab, is_enabled))
+        start_new_effect(lambda: run_summer_pulse(openlab))
 
     elif text in ["jeseň", "jesen"]:
-        play_sound("jesen.mp3")
+        play_sound_file("jesen.mp3")
         show_image("jesen.png")
-        start_new_effect(lambda: run_autumn_pulse(openlab, is_enabled))
+        start_new_effect(lambda: run_autumn_pulse(openlab))
 
     elif text == "zima":
-        play_sound("zima.mp3")
+        play_sound_file("zima.mp3")
         show_image("zima.png")
-        start_new_effect(lambda: run_winter_pulse(openlab, is_enabled))
+        start_new_effect(lambda: run_winter_pulse(openlab))
 
     elif text in ["deň", "default"]:
         stop_effect()
