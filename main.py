@@ -5,7 +5,7 @@ import time
 from moods import run_spring_pulse, run_summer_pulse, run_winter_pulse, run_autumn_pulse, day_mood
 
 # lights
-openlab = tuke_openlab.Controller(tuke_openlab.simulation_env("am720fg"))
+openlab = tuke_openlab.Controller(tuke_openlab.simulation_env("mg383jw"))
 # or production:
 # openlab = tuke_openlab.Controller(tuke_openlab.production_env())
 
@@ -43,5 +43,4 @@ def on_speech(text: str):
 openlab.voice_recognition.on_recognized(on_speech)
 
 while running:
-
     pass

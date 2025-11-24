@@ -3,7 +3,7 @@ from threading import Thread
 from tuke_openlab.lights import  Color
 import time
 
-openlab = tuke_openlab.Controller(tuke_openlab.simulation_env("am720fg"))
+openlab = tuke_openlab.Controller(tuke_openlab.simulation_env("mg383jw"))
 
 spring_palette = [
     Color(r=200, g=255, b=200),   # mint green
@@ -47,27 +47,24 @@ def pulse(color, start, COLUMNS):
     # start += 27
 
 def pulse_all_rows(palette, start, COLUMNS):
-
-
-    # rows = {1, 28, 55}
-    # for rows in range(3):
-    #     for color in spring_palette:
-    #         pulse(color)
-    #         time.sleep(0.2)
-    #start = 1
-    #COLUMNS = 27
-    #for row in range(3):
         for color in palette:
             pulse(color, start, COLUMNS)
-        #start += 27
-        #COLUMNS += 27
         time.sleep(0.25)
 
 
 
 def run_spring_pulse(openlab):
-    pulse_all_rows(spring_palette, 1, 27)
-    # Thread(target=pulse_all_rows, args=(spring_palette,)).start()
+    t1 = Thread(target=pulse_all_rows, args=(spring_palette, 1, 27))
+    t2 = Thread(target=pulse_all_rows, args=(spring_palette, 28, 54))
+    t3 = Thread(target=pulse_all_rows, args=(spring_palette, 55, 81))
+
+    t1.start()
+    t2.start()
+    t3.start()
+
+    t1.join()
+    t2.join()
+    t3.join()
 
 def run_autumn_pulse(openlab):
     t1 =  Thread(target=pulse_all_rows, args=(autumn_palette, 1, 27))
@@ -86,11 +83,30 @@ def run_autumn_pulse(openlab):
 
 
 def run_winter_pulse(openlab):
-    Thread(target=pulse_all_rows, args=(winter_palette,1,27)).start()
+    t1 = Thread(target=pulse_all_rows, args=(winter_palette, 1, 27))
+    t2 = Thread(target=pulse_all_rows, args=(winter_palette, 28, 54))
+    t3 = Thread(target=pulse_all_rows, args=(winter_palette, 55, 81))
+
+    t1.start()
+    t2.start()
+    t3.start()
+
+    t1.join()
+    t2.join()
+    t3.join()
 
 def run_summer_pulse(openlab):
-    Thread(target=pulse_all_rows, args=(summer_palette,1, 27)).start()
+    t1 = Thread(target=pulse_all_rows, args=(summer_palette, 1, 27))
+    t2 = Thread(target=pulse_all_rows, args=(summer_palette, 28, 54))
+    t3 = Thread(target=pulse_all_rows, args=(summer_palette, 55, 81))
 
+    t1.start()
+    t2.start()
+    t3.start()
+
+    t1.join()
+    t2.join()
+    t3.join()
 
 # default day
 
