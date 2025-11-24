@@ -1,11 +1,9 @@
 import threading
 import time
-import simpleaudio as sa
 from tuke_openlab.lights import Color
-import tuke_openlab
 
 # -----------------------------
-# GLOBAL FLAGS
+# GLOBAL FLAG
 # -----------------------------
 lights_enabled = True
 
@@ -60,35 +58,44 @@ def pulse_all_rows(palette, start, end, is_running, openlab):
             time.sleep(0.2)
 
 def run_spring_pulse(openlab):
-    t1 = threading.Thread(target=pulse_all_rows, args=(spring_palette, 1, 27, is_enabled, openlab))
-    t2 = threading.Thread(target=pulse_all_rows, args=(spring_palette, 28, 54, is_enabled, openlab))
-    t3 = threading.Thread(target=pulse_all_rows, args=(spring_palette, 55, 81, is_enabled, openlab))
-    t1.start(); t2.start(); t3.start()
-    t1.join(); t2.join(); t3.join()
+    threads = [
+        threading.Thread(target=pulse_all_rows, args=(spring_palette, 1, 27, is_enabled, openlab)),
+        threading.Thread(target=pulse_all_rows, args=(spring_palette, 28, 54, is_enabled, openlab)),
+        threading.Thread(target=pulse_all_rows, args=(spring_palette, 55, 81, is_enabled, openlab))
+    ]
+    for t in threads: t.start()
+    for t in threads: t.join()
 
 def run_summer_pulse(openlab):
-    t1 = threading.Thread(target=pulse_all_rows, args=(summer_palette, 1, 27, is_enabled, openlab))
-    t2 = threading.Thread(target=pulse_all_rows, args=(summer_palette, 28, 54, is_enabled, openlab))
-    t3 = threading.Thread(target=pulse_all_rows, args=(summer_palette, 55, 81, is_enabled, openlab))
-    t1.start(); t2.start(); t3.start()
-    t1.join(); t2.join(); t3.join()
+    threads = [
+        threading.Thread(target=pulse_all_rows, args=(summer_palette, 1, 27, is_enabled, openlab)),
+        threading.Thread(target=pulse_all_rows, args=(summer_palette, 28, 54, is_enabled, openlab)),
+        threading.Thread(target=pulse_all_rows, args=(summer_palette, 55, 81, is_enabled, openlab))
+    ]
+    for t in threads: t.start()
+    for t in threads: t.join()
 
 def run_autumn_pulse(openlab):
-    t1 = threading.Thread(target=pulse_all_rows, args=(autumn_palette, 1, 27, is_enabled, openlab))
-    t2 = threading.Thread(target=pulse_all_rows, args=(autumn_palette, 28, 54, is_enabled, openlab))
-    t3 = threading.Thread(target=pulse_all_rows, args=(autumn_palette, 55, 81, is_enabled, openlab))
-    t1.start(); t2.start(); t3.start()
-    t1.join(); t2.join(); t3.join()
+    threads = [
+        threading.Thread(target=pulse_all_rows, args=(autumn_palette, 1, 27, is_enabled, openlab)),
+        threading.Thread(target=pulse_all_rows, args=(autumn_palette, 28, 54, is_enabled, openlab)),
+        threading.Thread(target=pulse_all_rows, args=(autumn_palette, 55, 81, is_enabled, openlab))
+    ]
+    for t in threads: t.start()
+    for t in threads: t.join()
 
 def run_winter_pulse(openlab):
-    t1 = threading.Thread(target=pulse_all_rows, args=(winter_palette, 1, 27, is_enabled, openlab))
-    t2 = threading.Thread(target=pulse_all_rows, args=(winter_palette, 28, 54, is_enabled, openlab))
-    t3 = threading.Thread(target=pulse_all_rows, args=(winter_palette, 55, 81, is_enabled, openlab))
-    t1.start(); t2.start(); t3.start()
-    t1.join(); t2.join(); t3.join()
+    threads = [
+        threading.Thread(target=pulse_all_rows, args=(winter_palette, 1, 27, is_enabled, openlab)),
+        threading.Thread(target=pulse_all_rows, args=(winter_palette, 28, 54, is_enabled, openlab)),
+        threading.Thread(target=pulse_all_rows, args=(winter_palette, 55, 81, is_enabled, openlab))
+    ]
+    for t in threads: t.start()
+    for t in threads: t.join()
 
 # -----------------------------
-# DEFAULT DAY LIGHTS
+# DEFAULT LIGHTS
 # -----------------------------
 def day_mood(openlab):
-    openlab.lights.set_all(Color(204, 255, 255))
+    for i in range(len(openlab.lights)):
+        openlab.lights[i].set_color(Color(204, 255, 255))
