@@ -1,94 +1,96 @@
-# moods.py
+import tuke_openlab
+from threading import Thread
+from tuke_openlab.lights import Color
 import time
 
-# -------------------------------------
-# GLOBÁLNY PREPÍNAČ EFEKTOV
-# -------------------------------------
-_enabled = False
+env = tuke_openlab.production_env()
+openlab = tuke_openlab.Controller(env)
 
-def set_enabled(val: bool):
-    global _enabled
-    _enabled = val
+# -----------------------------
+# GLOBAL CONTROL FLAG
+# -----------------------------
+lights_enabled = True
 
-def is_enabled():
-    return _enabled
+# -----------------------------
+# PALETTES
+# -----------------------------
+spring_palette = [
+    Color(r=200, g=255, b=200),
+    Color(r=255, g=220, b=240),
+    Color(r=255, g=255, b=180),
+]
 
+summer_palette = [
+    Color(r=0, g=200, b=255),
+    Color(r=255, g=255, b=0),
+    Color(r=0, g=120, b=255),
+]
 
-# -------------------------------------
-# FARBY (ako RGB tuple)
-# -------------------------------------
-SPRING = (255, 120, 180)
-SUMMER = (255, 255, 0)
-AUTUMN = (255, 100, 0)
-WINTER = (150, 200, 255)
-DAY = (255, 255, 255)
+autumn_palette = [
+    Color(r=255, g=140, b=0),
+    Color(r=180, g=60, b=20),
+    Color(r=255, g=80, b=20),
+]
 
-color_values = {
-    "spring": SPRING,
-    "summer": SUMMER,
-    "autumn": AUTUMN,
-    "winter": WINTER
-}
-
-
-# -------------------------------------
-# ZÁKLADNÁ FUNKCIA: pulse
-# -------------------------------------
-def pulse(openlab, color):
-    while is_enabled():
-        openlab.lights.set_color(color)   # nastav všetky svetlá naraz
-        time.sleep(0.1)
+winter_palette = [
+    Color(r=180, g=220, b=255),
+    Color(r=220, g=240, b=255),
+    Color(r=120, g=180, b=255),
+]
 
 
-# -------------------------------------
-# TVOJE NOVÉ PUTUJUCE SVETLO CEZ PANEL
-# -------------------------------------
-def move_light_across(openlab, color_name):
-    triplets = [
-        (1, 28, 55), (2, 29, 56), (3, 30, 57), (4, 31, 58), (5, 32, 59),
-        (6, 33, 60), (7, 34, 61), (8, 35, 62), (9, 36, 63), (10, 37, 64),
-        (11, 38, 65), (12, 39, 66), (13, 40, 67), (14, 41, 68), (15, 42, 69),
-        (16, 43, 70), (17, 44, 71), (18, 45, 72), (19, 46, 73), (20, 47, 74),
-        (21, 48, 75), (22, 49, 76), (23, 50, 77), (24, 51, 78), (25, 52, 79),
-        (26, 53, 80), (27, 54, 81)
-    ]
+# -----------------------------
+# NEW SEQUENTIAL EFFECT
+# -----------------------------
+def seq_all_rows(palette, start, end, is_running):
+    while is_running():
+        for color in palette:
+            if not is_running():
+                return
 
-    for triplet in reversed(triplets):
-        if not is_enabled():
-            break
-
-        # nastav len tieto 3 LED-ky
-        openlab.lights.set_color(list(triplet), color_values[color_name])
-
-        time.sleep(0.4)
+            # ideme od start po end
+            for led_id in range(start, end + 1):
+                if not is_running():
+                    return
+                openlab.lights.set_color(led_id, color)
+                time.sleep(0.08)  # rýchlosť prechodu
 
 
-# -------------------------------------
-# REŽIMY – tieto voláš z main.py
-# -------------------------------------
-def run_spring_pulse(openlab):
-    pulse(openlab, SPRING)
+# -----------------------------
+# EFFECT FUNCTIONS (updated)
+# -----------------------------
+def run_spring_pulse(openlab, is_running):
+    t1 = Thread(target=seq_all_rows, args=(spring_palette, 1, 27, is_running))
+    t2 = Thread(target=seq_all_rows, args=(spring_palette, 28, 54, is_running))
+    t3 = Thread(target=seq_all_rows, args=(spring_palette, 55, 81, is_running))
+    t1.start(); t2.start(); t3.start()
+    t1.join(); t2.join(); t3.join()
 
-def run_summer_pulse(openlab):
-    pulse(openlab, SUMMER)
 
-def run_autumn_pulse(openlab):
-    pulse(openlab, AUTUMN)
+def run_summer_pulse(openlab, is_running):
+    t1 = Thread(target=seq_all_rows, args=(summer_palette, 1, 27, is_running))
+    t2 = Thread(target=seq_all_rows, args=(summer_palette, 28, 54, is_running))
+    t3 = Thread(target=seq_all_rows, args=(summer_palette, 55, 81, is_running))
+    t1.start(); t2.start(); t3.start()
+    t1.join(); t2.join(); t3.join()
 
-def run_winter_pulse(openlab):
-    pulse(openlab, WINTER)
 
-def run_spring_move(openlab):
-    move_light_across(openlab, "spring")
+def run_autumn_pulse(openlab, is_running):
+    t1 = Thread(target=seq_all_rows, args=(autumn_palette, 1, 27, is_running))
+    t2 = Thread(target=seq_all_rows, args=(autumn_palette, 28, 54, is_running))
+    t3 = Thread(target=seq_all_rows, args=(autumn_palette, 55, 81, is_running))
+    t1.start(); t2.start(); t3.start()
+    t1.join(); t2.join(); t3.join()
 
-def run_summer_move(openlab):
-    move_light_across(openlab, "summer")
 
-def run_autumn_move(openlab):
-    move_light_across(openlab, "autumn")
+def run_winter_pulse(openlab, is_running):
+    t1 = Thread(target=seq_all_rows, args=(winter_palette, 1, 27, is_running))
+    t2 = Thread(target=seq_all_rows, args=(winter_palette, 28, 54, is_running))
+    t3 = Thread(target=seq_all_rows, args=(winter_palette, 55, 81, is_running))
+    t1.start(); t2.start(); t3.start()
+    t1.join(); t2.join(); t3.join()
 
-def run_winter_move(openlab):
-    move_light_across(openlab, "winter")
 
-def day_mood(openlab):
-    openlab.lights.set_color(DAY)
+# default mode
+def day_mood():
+    openlab.lights.set_all(Color(204, 255, 255))
