@@ -3,14 +3,7 @@ from threading import Thread
 from tuke_openlab.lights import Color
 import time
 
-from moods import (
-    run_spring_pulse,
-    run_summer_pulse,
-    run_winter_pulse,
-    run_autumn_pulse,
-    day_mood,
-    lights_enabled
-)
+from moods import *
 
 # env = tuke_openlab.simulation_env("mg383jw")
 env= tuke_openlab.production_env()
@@ -21,13 +14,15 @@ import moods
 
 
 def stop_all():
-    moods.lights_enabled = False
+    moods._enabled = False
     openlab.lights.turn_off()
 
 
 def start_effect(effect_func):
-    moods.lights_enabled = True
-    Thread(target=effect_func, args=(openlab, lambda: moods.lights_enabled)).start()
+    moods._enabled = False       # stop predchádzajúci efekt
+    time.sleep(0.1)             # krátke čakanie, aby sa vlákna stihli ukončiť
+    moods._enabled = True
+    Thread(target=effect_func, args=(openlab, lambda: moods._enabled)).start()
 
 
 def on_speech(text: str):
@@ -38,19 +33,23 @@ def on_speech(text: str):
         return
 
     if text == "jar":
+        # stop_all()
         start_effect(run_spring_pulse)
 
     elif text == "leto":
+        # stop_all()
         start_effect(run_summer_pulse)
 
     elif text == "jeseň" or text == "jesen":
+        # stop_all()
         start_effect(run_autumn_pulse)
 
     elif text == "zima":
+        # stop_all()
         start_effect(run_winter_pulse)
 
 env.mqtt.publish("openlab/audio", {"say": "Vyber si ročné obdobie"})
-env.mqtt.subscribe_to("openlab/audio", on_speech)
+env.mqtt.subscribe_to("openlab/voice/recognition", on_speech)
 
 openlab.voice_recognition.on_recognized(on_speech)
 
