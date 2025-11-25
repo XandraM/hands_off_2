@@ -1,53 +1,48 @@
-import tuke_openlab
-from threading import Thread
-from tuke_openlab.lights import Color
 import time
-
+import threading
 from moods import *
+import tuke_openlab
 
 env = tuke_openlab.simulation_env("mg383jw")
-# env= tuke_openlab.production_env()
 openlab = tuke_openlab.Controller(env)
 
-# Premenná bude pripojená na moods.lights_enabled
-import moods
+current_thread = None
 
-
-def stop_all():
-    moods._enabled = False
+def stop_effect():
+    global current_thread
+    set_enabled(False)
     openlab.lights.turn_off()
-
+    if current_thread and current_thread.is_alive():
+        current_thread.join(timeout=0.1)
+    current_thread = None
 
 def start_effect(effect_func):
-    moods._enabled = False       # stop predchádzajúci efekt
-    time.sleep(0.1)             # krátke čakanie, aby sa vlákna stihli ukončiť
-    moods._enabled = True
-    Thread(target=effect_func, args=(openlab, lambda: moods._enabled)).start()
-
+    global current_thread
+    stop_effect()               # stop predchádzajúci efekt
+    set_enabled(True)
+    current_thread = threading.Thread(target=effect_func, args=(openlab, lambda: _enabled))
+    current_thread.start()
 
 def on_speech(text: str):
-    text = text.lower()
-
+    text = text.lower().strip()
     if text in ["stop", "koniec"]:
-        stop_all()
+        stop_effect()
         return
-
-    if text == "jar":
+    elif text == "jar":
         start_effect(run_spring_pulse)
-
     elif text == "leto":
         start_effect(run_summer_pulse)
-
-    elif text == "jeseň" or text == "jesen":
+    elif text in ["jeseň","jesen"]:
         start_effect(run_autumn_pulse)
-
     elif text == "zima":
         start_effect(run_winter_pulse)
+    elif text in ["deň","default"]:
+        stop_effect()
+        day_mood(openlab)
 
-# env.mqtt.publish("openlab/audio", {"say": "Vyber si ročné obdobie"})
-env.mqtt.subscribe_to("openlab/voice/recognition", on_speech)
-
+# pripojenie hlasového rozpoznávania
 openlab.voice_recognition.on_recognized(on_speech)
 
+# keep alive
 while True:
     time.sleep(0.1)
