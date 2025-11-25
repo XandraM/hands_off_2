@@ -1,96 +1,96 @@
-import tuke_openlab
-from threading import Thread
-from tuke_openlab.lights import Color
 import time
+from tuke_openlab.lights import Color
 
-env = tuke_openlab.production_env()
-openlab = tuke_openlab.Controller(env)
+# ---------------------------------------------------
+# GLOBAL FLAG
+# ---------------------------------------------------
+_enabled = False
 
-# -----------------------------
-# GLOBAL CONTROL FLAG
-# -----------------------------
-lights_enabled = True
+def set_enabled(val: bool):
+    global _enabled
+    _enabled = val
 
-# -----------------------------
-# PALETTES
-# -----------------------------
+def is_enabled():
+    return _enabled
+
+
+# ---------------------------------------------------
+# TRIPLETS – tvoje správne poradie LED
+# ---------------------------------------------------
+triplets = [
+    (1, 28, 55), (2, 29, 56), (3, 30, 57), (4, 31, 58), (5, 32, 59),
+    (6, 33, 60), (7, 34, 61), (8, 35, 62), (9, 36, 63), (10, 37, 64),
+    (11, 38, 65), (12, 39, 66), (13, 40, 67), (14, 41, 68), (15, 42, 69),
+    (16, 43, 70), (17, 44, 71), (18, 45, 72), (19, 46, 73), (20, 47, 74),
+    (21, 48, 75), (22, 49, 76), (23, 50, 77), (24, 51, 78), (25, 52, 79),
+    (26, 53, 80), (27, 54, 81)
+]
+
+# ---------------------------------------------------
+# COLOR PALETTES
+# ---------------------------------------------------
 spring_palette = [
-    Color(r=200, g=255, b=200),
-    Color(r=255, g=220, b=240),
-    Color(r=255, g=255, b=180),
+    Color(200, 255, 200),
+    Color(255, 220, 240),
+    Color(255, 255, 180),
 ]
 
 summer_palette = [
-    Color(r=0, g=200, b=255),
-    Color(r=255, g=255, b=0),
-    Color(r=0, g=120, b=255),
+    Color(0, 200, 255),
+    Color(255, 255, 0),
+    Color(0, 120, 255),
 ]
 
 autumn_palette = [
-    Color(r=255, g=140, b=0),
-    Color(r=180, g=60, b=20),
-    Color(r=255, g=80, b=20),
+    Color(255, 140, 0),
+    Color(180, 60, 20),
+    Color(255, 80, 20),
 ]
 
 winter_palette = [
-    Color(r=180, g=220, b=255),
-    Color(r=220, g=240, b=255),
-    Color(r=120, g=180, b=255),
+    Color(180, 220, 255),
+    Color(220, 240, 255),
+    Color(120, 180, 255),
 ]
 
+DAY = Color(255, 255, 255)
 
-# -----------------------------
-# NEW SEQUENTIAL EFFECT
-# -----------------------------
-def seq_all_rows(palette, start, end, is_running):
-    while is_running():
+
+# ---------------------------------------------------
+# MAIN EFFECT — goes EXACTLY in TRIPLET ORDER
+# ---------------------------------------------------
+def move_triplets_in_order(openlab, palette):
+    while is_enabled():
         for color in palette:
-            if not is_running():
+            if not is_enabled():
                 return
 
-            # ideme od start po end
-            for led_id in range(start, end + 1):
-                if not is_running():
+            for trio in triplets:  # presne tvoje poradie
+                if not is_enabled():
                     return
-                openlab.lights.set_color(led_id, color)
-                time.sleep(0.08)  # rýchlosť prechodu
+
+                openlab.lights.set_color(list(trio), color)
+                time.sleep(0.25)   # pokojný presun svetla
 
 
-# -----------------------------
-# EFFECT FUNCTIONS (updated)
-# -----------------------------
+# ---------------------------------------------------
+# MODE WRAPPERS
+# ---------------------------------------------------
 def run_spring_pulse(openlab, is_running):
-    t1 = Thread(target=seq_all_rows, args=(spring_palette, 1, 27, is_running))
-    t2 = Thread(target=seq_all_rows, args=(spring_palette, 28, 54, is_running))
-    t3 = Thread(target=seq_all_rows, args=(spring_palette, 55, 81, is_running))
-    t1.start(); t2.start(); t3.start()
-    t1.join(); t2.join(); t3.join()
-
+    move_triplets_in_order(openlab, spring_palette)
 
 def run_summer_pulse(openlab, is_running):
-    t1 = Thread(target=seq_all_rows, args=(summer_palette, 1, 27, is_running))
-    t2 = Thread(target=seq_all_rows, args=(summer_palette, 28, 54, is_running))
-    t3 = Thread(target=seq_all_rows, args=(summer_palette, 55, 81, is_running))
-    t1.start(); t2.start(); t3.start()
-    t1.join(); t2.join(); t3.join()
-
+    move_triplets_in_order(openlab, summer_palette)
 
 def run_autumn_pulse(openlab, is_running):
-    t1 = Thread(target=seq_all_rows, args=(autumn_palette, 1, 27, is_running))
-    t2 = Thread(target=seq_all_rows, args=(autumn_palette, 28, 54, is_running))
-    t3 = Thread(target=seq_all_rows, args=(autumn_palette, 55, 81, is_running))
-    t1.start(); t2.start(); t3.start()
-    t1.join(); t2.join(); t3.join()
-
+    move_triplets_in_order(openlab, autumn_palette)
 
 def run_winter_pulse(openlab, is_running):
-    t1 = Thread(target=seq_all_rows, args=(winter_palette, 1, 27, is_running))
-    t2 = Thread(target=seq_all_rows, args=(winter_palette, 28, 54, is_running))
-    t3 = Thread(target=seq_all_rows, args=(winter_palette, 55, 81, is_running))
-    t1.start(); t2.start(); t3.start()
-    t1.join(); t2.join(); t3.join()
+    move_triplets_in_order(openlab, winter_palette)
 
 
-# default mode
-def day_mood():
-    openlab.lights.set_all(Color(204, 255, 255))
+# ---------------------------------------------------
+# DEFAULT STATIC MODE
+# ---------------------------------------------------
+def day_mood(openlab):
+    openlab.lights.set_all(DAY)
