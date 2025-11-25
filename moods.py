@@ -1,64 +1,47 @@
 import time
-from threading import Thread
-from tuke_openlab import Controller
-from tuke_openlab.lights import Color
 
-openlab = Controller(Controller.simulation_env("mg383jw"))
+# globálny prepínač zapnutia efektov
+_enabled = False
 
-# -----------------------------
-# GLOBAL FLAG
-# -----------------------------
-_enabled = True
-def set_enabled(value: bool):
+def set_enabled(val: bool):
     global _enabled
-    _enabled = value
+    _enabled = val
 
-def is_enabled():
-    return _enabled
+# jednoduché farby ako tuple (R, G, B)
+# OpenLab akceptuje aj tuple
+SPRING = (255, 120, 180)
+SUMMER = (255, 255, 0)
+AUTUMN = (255, 100, 0)
+WINTER = (150, 200, 255)
+DAY = (255, 255, 255)
 
-# -----------------------------
-# PALETTES
-# -----------------------------
-spring_palette = [Color(200,255,200), Color(255,220,240), Color(255,255,180)]
-summer_palette = [Color(0,200,255), Color(255,255,0), Color(0,120,255)]
-autumn_palette = [Color(255,140,0), Color(180,60,20), Color(255,80,20)]
-winter_palette = [Color(180,220,255), Color(220,240,255), Color(120,180,255)]
+# všetky efekty pracujú rovnako:
+# stále dookola nastavujú farbu
+# a čakajú 0.1 sekundy
+def pulse(openlab, color):
+    while _enabled:
+        openlab.lights.set_color(color)
+        time.sleep(0.1)
 
-# -----------------------------
-# LIGHTS EFFECT
-# -----------------------------
-def pulse_all_rows(palette, start, end):
-    """Beží efekt kým is_enabled = True"""
-    for color in palette:
-        if not is_enabled():
-            return
-        for i in range(start, end+1):
-            if not is_enabled():
-                return
-            openlab.lights.set_color(i, color)  # tu sa spravne nastavuje farba
-            time.sleep(0.15)
 
-def run_effect_for_palette(palette):
-    """Efekt paralelne pre 3 riadky svetiel"""
-    threads = [
-        Thread(target=pulse_all_rows, args=(palette, 1, 27)),
-        Thread(target=pulse_all_rows, args=(palette, 28, 54)),
-        Thread(target=pulse_all_rows, args=(palette, 55, 81)),
-    ]
-    for t in threads: t.start()
-    for t in threads: t.join()
+# --- jednotlivé módy (iba zabalíme pulse s farbou) ---
 
-# -----------------------------
-# KAŽDÉ ROČNÉ OBDOBIE
-# -----------------------------
-def run_spring_pulse(): run_effect_for_palette(spring_palette)
-def run_summer_pulse(): run_effect_for_palette(summer_palette)
-def run_autumn_pulse(): run_effect_for_palette(autumn_palette)
-def run_winter_pulse(): run_effect_for_palette(winter_palette)
+def run_spring_pulse():
+    from main import openlab
+    pulse(openlab, SPRING)
 
-# -----------------------------
-# DEFAULT
-# -----------------------------
+def run_summer_pulse():
+    from main import openlab
+    pulse(openlab, SUMMER)
+
+def run_autumn_pulse():
+    from main import openlab
+    pulse(openlab, AUTUMN)
+
+def run_winter_pulse():
+    from main import openlab
+    pulse(openlab, WINTER)
+
 def day_mood():
-    set_enabled(False)
-    openlab.lights.turn_off()
+    from main import openlab
+    openlab.lights.set_color(DAY)
