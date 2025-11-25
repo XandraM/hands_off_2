@@ -12,7 +12,9 @@ from moods import (
     lights_enabled
 )
 
-openlab = tuke_openlab.Controller(tuke_openlab.simulation_env("mg383jw"))
+# env = tuke_openlab.simulation_env("mg383jw")
+env= tuke_openlab.production_env()
+openlab = tuke_openlab.Controller(env)
 
 # Premenná bude pripojená na moods.lights_enabled
 import moods
@@ -47,6 +49,8 @@ def on_speech(text: str):
     elif text == "zima":
         start_effect(run_winter_pulse)
 
+env.mqtt.publish("openlab/audio", {"say": "Vyber si ročné obdobie"})
+env.mqtt.subscribe_to("openlab/audio", on_speech)
 
 openlab.voice_recognition.on_recognized(on_speech)
 

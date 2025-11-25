@@ -3,7 +3,8 @@ from threading import Thread
 from tuke_openlab.lights import Color
 import time
 
-openlab = tuke_openlab.Controller(tuke_openlab.simulation_env("mg383jw"))
+env= tuke_openlab.production_env()
+openlab = tuke_openlab.Controller(env)
 
 # -----------------------------
 # GLOBAL CONTROL FLAG
