@@ -65,8 +65,9 @@ def move_triplets_in_order(openlab, palette):
             if not is_enabled():
                 return
 
-            for trio in triplets:  # presne tvoje poradie
-                if not is_enabled():
+            for trio in triplets:
+                if not is_enabled():  # kontrola pred každou zmenou farby
+                    openlab.lights.turn_off()  # okamžite zhasne všetky
                     return
 
                 openlab.lights.set_color(list(trio), color)
