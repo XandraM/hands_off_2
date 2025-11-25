@@ -19,6 +19,8 @@ def stop_all():
 
 
 def start_effect(effect_func):
+    moods._enabled = False       # stop predchádzajúci efekt
+    time.sleep(0.1)             # krátke čakanie, aby sa vlákna stihli ukončiť
     moods._enabled = True
     Thread(target=effect_func, args=(openlab, lambda: moods._enabled)).start()
 
