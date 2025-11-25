@@ -1,9 +1,6 @@
 import time
 from tuke_openlab.lights import Color
 
-# ---------------------------------------------------
-# GLOBAL FLAG
-# ---------------------------------------------------
 _enabled = False
 
 def set_enabled(val: bool):
@@ -13,10 +10,7 @@ def set_enabled(val: bool):
 def is_enabled():
     return _enabled
 
-
-# ---------------------------------------------------
-# TRIPLETS – tvoje správne poradie LED
-# ---------------------------------------------------
+# triplets – presne tvoje zoradenie LED
 triplets = [
     (1, 28, 55), (2, 29, 56), (3, 30, 57), (4, 31, 58), (5, 32, 59),
     (6, 33, 60), (7, 34, 61), (8, 35, 62), (9, 36, 63), (10, 37, 64),
@@ -26,72 +20,30 @@ triplets = [
     (26, 53, 80), (27, 54, 81)
 ]
 
-# ---------------------------------------------------
-# COLOR PALETTES
-# ---------------------------------------------------
-spring_palette = [
-    Color(200, 255, 200),
-    Color(255, 220, 240),
-    Color(255, 255, 180),
-]
+# farby
+spring_palette = [Color(200,255,200)]
+summer_palette = [Color(0,200,255)]
+autumn_palette = [Color(255,140,0)]
+winter_palette = [Color(180,220,255)]
+DAY = Color(255,255,255)
 
-summer_palette = [
-    Color(0, 200, 255),
-    Color(255, 255, 0),
-    Color(0, 120, 255),
-]
-
-autumn_palette = [
-    Color(255, 140, 0),
-    Color(180, 60, 20),
-    Color(255, 80, 20),
-]
-
-winter_palette = [
-    Color(180, 220, 255),
-    Color(220, 240, 255),
-    Color(120, 180, 255),
-]
-
-DAY = Color(255, 255, 255)
-
-
-# ---------------------------------------------------
-# MAIN EFFECT — goes EXACTLY in TRIPLET ORDER
-# ---------------------------------------------------
+# efekt, presne podľa tripletov
 def move_triplets_in_order(openlab, palette):
     while is_enabled():
         for color in palette:
             if not is_enabled():
+                openlab.lights.turn_off()
                 return
-
             for trio in triplets:
-                if not is_enabled():  # kontrola pred každou zmenou farby
-                    openlab.lights.turn_off()  # okamžite zhasne všetky
+                if not is_enabled():
+                    openlab.lights.turn_off()
                     return
-
                 openlab.lights.set_color(list(trio), color)
-                time.sleep(0.25)   # pokojný presun svetla
+                time.sleep(0.15)
 
-
-# ---------------------------------------------------
-# MODE WRAPPERS
-# ---------------------------------------------------
-def run_spring_pulse(openlab, is_running):
-    move_triplets_in_order(openlab, spring_palette)
-
-def run_summer_pulse(openlab, is_running):
-    move_triplets_in_order(openlab, summer_palette)
-
-def run_autumn_pulse(openlab, is_running):
-    move_triplets_in_order(openlab, autumn_palette)
-
-def run_winter_pulse(openlab, is_running):
-    move_triplets_in_order(openlab, winter_palette)
-
-
-# ---------------------------------------------------
-# DEFAULT STATIC MODE
-# ---------------------------------------------------
-def day_mood(openlab):
-    openlab.lights.set_all(DAY)
+# módy
+def run_spring_pulse(openlab, is_running): move_triplets_in_order(openlab, spring_palette)
+def run_summer_pulse(openlab, is_running): move_triplets_in_order(openlab, summer_palette)
+def run_autumn_pulse(openlab, is_running): move_triplets_in_order(openlab, autumn_palette)
+def run_winter_pulse(openlab, is_running): move_triplets_in_order(openlab, winter_palette)
+def day_mood(openlab): openlab.lights.set_all(DAY)
