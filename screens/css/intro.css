@@ -1,0 +1,11 @@
+#intro {
+    font-family: Impact, fantasy;
+    font-variant: small-caps;
+    text-align: center;
+}
+
+h1 { font-size: 10vw }
+h2 { font-size: 5vw }
+li { font-size: 3vw }
+
+.hidden { display: none }
