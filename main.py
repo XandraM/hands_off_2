@@ -9,7 +9,6 @@ from moods import *
 env= tuke_openlab.production_env()
 openlab = tuke_openlab.Controller(env)
 
-# Premenná bude pripojená na moods.lights_enabled
 import moods
 
 
@@ -19,8 +18,8 @@ def stop_all():
 
 
 def start_effect(effect_func):
-    moods._enabled = False       # stop predchádzajúci efekt
-    time.sleep(0.1)             # krátke čakanie, aby sa vlákna stihli ukončiť
+    moods._enabled = False
+    time.sleep(0.1)
     moods._enabled = True
     Thread(target=effect_func, args=(openlab, lambda: moods._enabled)).start()
 
@@ -48,7 +47,7 @@ def on_speech(text: str):
         # stop_all()
         start_effect(run_winter_pulse)
 
-env.mqtt.publish("openlab/audio", {"say": "Vyber si ročné obdobie"})
+# env.mqtt.publish("openlab/audio", {"say": "Vyber si ročné obdobie"})
 env.mqtt.subscribe_to("openlab/voice/recognition", on_speech)
 
 openlab.voice_recognition.on_recognized(on_speech)
