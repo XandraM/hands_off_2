@@ -8,23 +8,68 @@
 
     <link rel="stylesheet" href="css/intro.css"/>
     <link rel="stylesheet" href="css/spring.css"/>
+    <link rel="stylesheet" href="css/summer.css">
+    <link rel="stylesheet" href="css/autumn.css">
+    <link rel="stylesheet" href="css/winter.css">
 </head>
 <body>
+
 
 <div id="intro" class="hidden">
     <h1 class="title"> Weather Changer </h1>
     <div class="content">
         <h2>You can choose your weather:</h2>
-            <li>Jar</li>
-            <li>Leto</li>
-            <li>Jesen</li>
-            <li>Zima</li>
+        <li>Jar</li>
+        <li>Leto</li>
+        <li>Jeseň</li>
+        <li>Zima</li>
     </div>
 </div>
 
-<div id="spring" class="">
+<div id="spring" class="hidden">
     <h1 class="title">JAR</h1>
+    <div id="moving-petals"></div>
+    <p>Jar je krásne ročné obdobie, keď sa príroda prebúdza po dlhom zimnom spánku. Stromy začínajú pučať, kvety sa otvárajú a všade počuť spev vtákov. Slnko je už teplejšie a dni sú dlhšie, čo nám dáva viac času hrať sa vonku. Po snehu zostáva len spomienka a rieky a potoky sa začínajú znovu napĺňať roztopeným snehom.
+
+Deti si jar obľúbia, pretože môžu chodiť na prechádzky do prírody, zbierať prvé kvety, pozorovať motýle a hmyz. V záhradách ľudia sadiť semienka a starať sa o rastlinky, ktoré čoskoro vyrastú a začnú prinášať plody. Jar je aj čas Veľkej noci, keď si ľudia farbia vajíčka a tešia sa zo slávnostných tradícií.
+
+Počas jari sa často mení počasie – jeden deň je slnečno a teplo, a na druhý deň môže pršať alebo fúkať vietor. To je úplne prirodzené a pomáha prírode rásť a kvitnúť. Jar je obdobie nových začiatkov, radosti a hry vonku. Všetko sa prebúdza k životu a príroda nám ukazuje svoju krásu a farby.</p>
 <!--    <img class="spring" src="/images/jar.png" alt="spring"/>-->
+</div>
+
+<div id="summer" class="hidden">
+    <video autoplay muted loop id="background-video">
+        <source src="videos/leto.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+
+    <h1>LETO</h1>
+    <p>
+        Leto je teplé a slnečné ročné obdobie, keď dni sú dlhé a večery príjemné. Stromy sú plné zelene, kvety kvitnú a lúky sa menia na farebné koberce. Deti si leto obľúbia, pretože môžu tráviť veľa času vonku, hrať sa v parku, na dvore alebo na ihrisku. Veľmi obľúbené sú letné výlety do prírody, k jazerám, riekam alebo k moru, kde sa môžeme kúpať, plávať alebo stavať hrady z piesku.
+
+Počas leta často cítime teplé slnko na pokožke a môžeme pozorovať motýle, včely a iný hmyz, ktorý zbiera nektár z kvetov. V záhradách dozrievajú ovocie a zelenina, a ľudia sa tešia zo zberu jahôd, čerešní alebo paradajok. Leto je tiež čas prázdnin, dovoleniek a zábavy s kamarátmi či rodinou.
+
+Niektoré dni sú veľmi teplé a vhodné na vodné aktivity, iné dni môžu byť daždivé, čo nám dáva možnosť zostať doma a hrať sa alebo čítať knihy. Leto je obdobie radosti, zábavy, hier vonku a objavovania nových miest. Všetko okolo nás je plné života, farieb a energie.
+    </p>
+</div>
+
+<div id="autumn" class="hidden">
+    <h1>JESEŇ</h1>
+    <div id="falling-leaves"></div>
+    <p>
+        Jeseň je čas, keď sa lístie farbí do oranžova, červena a zlata.<br>
+        Stromy sa pripravujú na zimu a listy pomaly padajú na zem.<br>
+        Deti zbierajú farebné listy, hrabú ich a hrajú sa vonku.
+    </p>
+</div>
+
+<div id="winter" class="">
+    <h1>ZIMA</h1>
+    <div id="falling-snow"></div>
+    <p>
+        Zima je studené ročné obdobie so snehom a mrazom.<br>
+        Stromy a zem sú pokryté bielym snehom, a deti sa tešia zo sánkovania, stavania snehuliakov a hrania sa vonku.
+    </p>
 </div>
 
 </body>
