@@ -2,10 +2,47 @@
     font-family: Impact, fantasy;
     font-variant: small-caps;
     text-align: center;
+
+    margin: 0;
+    padding: 0;
+    height: 100%;
+
+    background-image: url("../images/intro.jpeg");
+    background-size: 100% 95%;  
+    background-position: top center;
+    background-repeat: no-repeat;
+    width: 100vw;
+    height: 100vh; 
+
 }
 
-h1 { font-size: 10vw }
-h2 { font-size: 5vw }
-li { font-size: 3vw }
+#intro h1, 
+#intro h2, 
+#intro li {
+    color: #ddd;       /* farba textu */
+    text-align: center;  /* zarovnanie na stred */
+    margin: 0;           /* odstránenie predvoleného odsadenia */
+    padding-top: 20px;   /* odsadenie odhora, môžeš upraviť */
+
+    /* hrubší čierny obrys pomocou text-shadow */
+    text-shadow:
+        -3px -3px 0 #000,
+         3px -3px 0 #000,
+        -3px  3px 0 #000,
+         3px  3px 0 #000,
+        -3px  0 0 #000,
+         3px  0 0 #000,
+         0 -3px 0 #000,
+         0  3px 0 #000;
+}
+
+/* špecifické veľkosti písma */
+#intro h1 { font-size: 10vw; padding-top: 15px; }
+#intro h2 { font-size: 5vw; padding-top: 20px; }
+#intro li { font-size: 3vw; padding-top: 10px; }
 
 .hidden { display: none }
+
+
+
+
